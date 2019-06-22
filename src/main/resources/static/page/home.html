@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>五道口大数据分析系统</title>
+    <link rel="stylesheet" href="/js/layui/css/layui.css">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">五道口大数据分析系统</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+           <!-- <li class="layui-nav-item"><a href="">控制台</a></li>
+            <li class="layui-nav-item"><a href="">商品管理</a></li>
+            <li class="layui-nav-item"><a href="">用户</a></li>-->
+           <!-- <li class="layui-nav-item">
+                <a href="javascript:;">数据中心</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="">平台每天交易量</a></dd>
+                </dl>
+            </li>-->
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a id="data" href="javascript:;">
+                    <!--<img src="http://t.cn/RCzsdCq" class="layui-nav-img">-->
+                    <!--${uinfo}-->
+                </a>
+           <!--     <dl class="layui-nav-child">
+                    <dd><a href="">基本资料</a></dd>
+                    <dd><a href="">安全设置</a></dd>
+                </dl>-->
+            </li>
+            <li class="layui-nav-item"><a href="javascript:logout()">退了</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul id="menuBody" class="layui-nav layui-nav-tree" lay-filter="test">
+                 <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">数据中心</a>
+                         <dl class="layui-nav-child">
+                            <dd><a onclick="skip('/page/sales_pm.html')" href="javascript:;">平台每天交易量</a></dd>
+                            <dd><a  onclick="skip('/page/cp.html')" href="javascript:;">产品性价比</a></dd>
+                             <dd><a  onclick="skip('/page/sales_top.html')" href="javascript:;">销售额品牌排行榜</a></dd>
+                             <dd><a  onclick="skip('/page/daily_comment_ranking.html')" href="javascript:;">每日用户关注量排行榜</a></dd>
+                             <dd><a  onclick="skip('/page/sales_one_hourse.html')" href="javascript:;">高峰时段交易量及交易额排行</a></dd>
+                             <dd><a  onclick="skip('/page/effect.html')" href="javascript:;">各大平台功效偏好排行</a></dd>
+                             <dd><a  onclick="skip('/page/volume_brand.html')" href="javascript:;">平台购买偏好排行</a></dd>
+                         </dl>
+                 </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <iframe id="bodyFrame" src="/page/main.html" style="width: 99%;height: 99%"></iframe>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+       <h2> © www.wdksoft.cn - 甄爽----数据分析真的爽</h2>
+    </div>
+</div>
+<script src="/js/jquery-1.7.2.min.js"></script>
+<script src="/js/layui/layui.all.js"></script>
+<script>
+    $(function () {
+        $.ajax({
+            url: '/user/getSessionData',
+            data:{},
+            dataType: 'json',
+            type: 'post',
+            success : function (data) {
+                if (data.code!=null){
+                    if(data.code==200){
+                        $("#data").html(data.msg);
+                    }
+                }
+            }
+        });
+    })
+    function logout() {
+        $.ajax({
+            url: '/user/logout',
+            data:{},
+            dataType: 'json',
+            type: 'post',
+            success : function (data) {
+                if (data.code!=null){
+                    if(data.code==200){
+                        window.location.href="/login.html";
+                    }
+                }
+            }
+        });
+    }
+    //JavaScript代码区域
+    layui.use('element', function () {
+        var element = layui.element;
+        $.ajax({
+            url: "/menu/getMenu",
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                var menuHtml = "";
+                $.each(data.data, function () {
+                    // <li class="layui-nav-item"><a href="">系统管理</a></li>
+                    var _data = this;
+                    if (_data.children != null) {
+                        // <li class="layui-nav-item layui-nav-itemed">
+                        //         <a class="" href="javascript:;">用户中心</a>
+                        //         <dl class="layui-nav-child">
+                        //         <dd><a onclick="skip('user.html')" href="javascript:;">用户管理</a></dd>
+                        //     <dd><a href="javascript:;">用户中心</a></dd>
+                        //     </dl>
+                        //     </li>
+                        menuHtml += "<li class='layui-nav-item layui-nav-itemed'><a  href='javascript:;'>" + _data.name + "</a><dl class='layui-nav-child'>";
+                        console.log(menuHtml)
+                        $.each(_data.children, function () {
+                            menuHtml += "<dd><a onclick='skip(\"" + this.href + "\")' href='javascript:;'>" + this.name + "</a></dd>";
+                        })
+                        menuHtml += "</dl></li>"
+                    } else {
+                        menuHtml += "<li class='layui-nav-item'><a href='javascript:;'>" + _data.name + "</a></li>";
+                    }
+                })
+                console.log(menuHtml)
+                $("#menuBody").html(menuHtml);
+                element.render("nav");
+            }
+        });
+
+    });
+
+    function skip(href) {
+        $("#bodyFrame").attr("src", href);
+    }
+
+
+</script>
+</body>
+</html>

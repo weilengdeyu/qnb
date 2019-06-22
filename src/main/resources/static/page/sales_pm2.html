@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>数据分析平台</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/js/layui/css/layui.css"  media="all">
+    <script type="text/javascript" src="/dist/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="/dist/echarts.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $(".layui-tab-title li").click(function () {
+               var vv= $(this).text();
+                ec(vv);
+            });
+        })
+        require.config({
+            paths: {
+                echarts: '/dist'
+            }
+        });
+        ec('2013-10-20');
+
+        function ec(data) {
+            var url = "/sales/findAllSalesAjax?date="+data;
+            EconfigAPI(url);
+        }
+        var datelist;
+        var numlist;
+        function EconfigAPI(url){
+            $.ajaxSettings.async = false;  //同步才能获取数据
+            $.post(url,function(data) {
+               // alert(data);
+                datelist=data.data.datelist;
+                numlist=data.data.numlist;
+            },"json");
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/line',   // 按需加载所需图表，如需动态类型切换功能，别忘了同时加载相应图表
+                    'echarts/chart/bar',
+                ],
+                //mine系统给的值
+                function (mine) {
+                    var myChart = mine.init(document.getElementById("tradingEcharts"));
+                    //--- 折柱 ---
+                    var option ={
+                        title : {
+                            text: '销量排行'
+                        },
+                        grid:{
+                              x:80,
+                             y:45,
+                             x2:20,
+                            y2:140
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['销量排行']
+                        },
+                        toolbox: {
+                            show : true,
+                            feature : {
+                                mark : {show: true},
+                                dataView : {show: true, readOnly: false},
+                                magicType : {show: true, type: ['line', 'bar']},
+                                restore : {show: true},
+                                saveAsImage : {show: true}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                show : true,
+                                type : 'category',
+                                data:datelist,
+                                axisLabel: {
+                                   /* interval: 0,
+                                    formatter:function(value)
+                                    {
+                                        return value.split("").join("\n");
+                                    },*/
+                                    /* rotate:45, //刻度旋转45度角*/
+                                    textStyle:{
+                                        color:"black", //刻度颜色
+                                        fontSize:18  //刻度大小
+                                    }
+                                }
+                            }
+                        ],
+
+                        yAxis : [
+                            {
+                                type : 'value',
+                                splitArea : {show : true},
+                                axisLabel: {
+                                /* interval: 0,
+                                 formatter:function(value)
+                                 {
+                                 return value.split("").join("\n");
+                                 },*/
+                                /* rotate:45, //刻度旋转45度角*/
+                                textStyle:{
+                                    color:"black", //刻度颜色
+                                    fontSize:18  //刻度大小
+                                }
+                            }
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'销量',
+                                barWidth: 60, // 柱图宽度
+                                type:'bar',
+                                data:numlist //集合：所有8周价格集合
+                            }
+                        ]
+                    }
+                    myChart.setOption(option);
+                });
+        }
+    </script>
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+    <ul class="layui-tab-title">
+        <li class="layui-this">2013-10-20</li>
+        <li>2013-10-21</li>
+        <li>2013-10-22</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 100px;">
+        <div id="tradingEcharts" style="float: left; width: 70%; height: 460px; margin-left: 5%;">
+        </div>
+        <table class="layui-table" style="float:left;margin-top: 4%; width:22%;">
+            <colgroup>
+                <col width="150">
+                <col width="200">
+                <col>
+            </colgroup>
+            <thead>
+            <tr>
+                <th>平台编号</th>
+                <th>平台名称</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>平台1</td>
+                <td>京东</td>
+            </tr>
+            <tr>
+                <td>平台2</td>
+                <td>淘宝</td>
+            </tr>
+            <tr>
+                <td>平台3</td>
+                <td>天猫</td>
+            </tr>
+            <tr>
+                <td>平台4</td>
+                <td>一号店</td>
+            </tr>
+            <tr>
+                <td>平台5</td>
+                <td>亚马逊</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="color:red;">说明：5个平台每天的交易量结果数据</td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- <div class="layui-tab-item layui-show">
+
+         </div>
+         <div class="layui-tab-item">内容2</div>
+         <div class="layui-tab-item">内容3</div>-->
+    </div>
+  
+</div>
+
+
+
+    <script src="/js/jquery-1.7.2.min.js"></script>
+    <script src="/js/layui/layui.all.js" charset="utf-8"></script>
+
+
+</body>
+</html>
